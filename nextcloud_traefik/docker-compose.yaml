@@ -1,0 +1,64 @@
+
+networks:
+  nextcloud_traefik_network:
+    driver: bridge
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=ikantuna
+      - MYSQL_PASSWORD=ikantuna
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    volumes:
+      - db:/var/lib/mysql
+    networks: 
+      - nextcloud_traefik_network
+
+  redis:
+    image: redis:alpine
+    restart: always
+    networks:
+      - nextcloud_traefik_network
+
+  app:
+    image: nextcloud
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.local`)"  # Route based on domain
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"  # Container's internal port for Nextcloud
+      - "traefik.http.routers.nextcloud.entrypoints=web"
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - nextcloud:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=ikantuna
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+    networks:
+      - nextcloud_traefik_network
+
+  reverse-proxy:
+    image: traefik:v3.3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--entrypoints.web.address=:80"  # Traefik listens on port 80
+    ports:
+      - "80:80"      # Exposes port 80 for HTTP traffic
+      - "8080:8080"  # Exposes port 8080 for Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"  # Required for Traefik to access Docker metadata
+    networks:
+      - nextcloud_traefik_network
+
+volumes:
+  nextcloud:
+  db:
+
