@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+    traefik.enable: "true"
+    traefik.http.routers.nextcloud.entrypoints: web
+    traefik.http.routers.nextcloud.rule: Host(`nextcloud.local`)
+    traefik.http.services.nextcloud.loadbalancer.server.port: "80"
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+        traefik.enable: "true"
+        traefik.http.routers.nextcloud.entrypoints: web
+        traefik.http.routers.nextcloud.rule: Host(`nextcloud.local`)
+        traefik.http.services.nextcloud.loadbalancer.server.port: "80"
+      labels:
+        io.kompose.service: app
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: nextcloud
+            - name: MYSQL_HOST
+              value: db
+            - name: MYSQL_PASSWORD
+              value: ikantuna
+            - name: MYSQL_USER
+              value: nextcloud
+          image: nextcloud
+          name: app
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud
+      restartPolicy: Always
+      volumes:
+        - name: nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud
