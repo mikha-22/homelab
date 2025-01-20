@@ -14,7 +14,7 @@ services:
       - MYSQL_USER=nextcloud
     volumes:
       - db:/var/lib/mysql
-    networks: 
+    networks:
       - nextcloud_traefik_network
 
   redis:
