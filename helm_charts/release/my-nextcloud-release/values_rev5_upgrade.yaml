@@ -1,0 +1,11 @@
+externalDatabase:
+  database: nextcloud
+  host: my-postgresql-release.default.svc.cluster.local
+  user: nextcloud
+mariadb:
+  enabled: false
+nextcloud:
+  host: 127.0.0.1
+  password: ikantuna
+service:
+  type: ClusterIP
