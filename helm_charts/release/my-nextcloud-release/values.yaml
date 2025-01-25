@@ -1,0 +1,8 @@
+externalDatabase:
+  enabled: true
+  type: postgresql
+  host: "my-postgresql-release:5432"
+  database: nextcloud
+  user: nextcloud
+  password: nextcloudpassword
+
