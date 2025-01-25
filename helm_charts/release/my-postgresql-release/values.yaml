@@ -1,0 +1,12 @@
+auth:
+  postgresPassword: adminpassword # Password for the default "postgres" superuser
+  username: nextcloud             # Custom user for Nextcloud
+  password: nextcloudpassword     # Password for the Nextcloud user
+  database: nextcloud             # Database name for Nextcloud
+
+primary:
+  persistence:
+    enabled: true
+    size: 2Gi                    # Persistent volume size
+    storageClass: ""              # Use the default storage class or specify one
+
